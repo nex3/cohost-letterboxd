@@ -1,0 +1,18 @@
+mat-card, .result, mat-spinner {
+  max-width: 65ch;
+  margin: 0 auto;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.result, mat-spinner {
+  margin-top: 2rem;
+}
