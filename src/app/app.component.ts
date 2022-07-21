@@ -86,12 +86,12 @@ export class AppComponent {
               .filter(text => text.startsWith('Reviewed on '))
               .map(text => text.substring('Reviewed on '.length))
               [0],
-          reviewer: usernameLink.innerText,
+          reviewer: usernameLink.innerText.trim(),
           reviewerUrl: new URL(usernameLink.getAttribute('href')!, reviewResponse.url!),
           reviewerAvatar: new URL(doc.querySelector('#avatar img')!.getAttribute('src')!, reviewResponse.url!),
-          game: gameLink.innerText,
+          game: gameLink.innerText.trim(),
           gameUrl,
-          platform: platformLink.innerText,
+          platform: platformLink.innerText.trim(),
           platformUrl: new URL(platformLink.getAttribute('href')!, reviewResponse.url!),
           starsPercentage: (doc.querySelector('.stars-top') as HTMLElement).style['width'],
           body: doc.querySelector('.review-body p')!.innerHTML,
