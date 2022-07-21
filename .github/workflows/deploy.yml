@@ -27,7 +27,8 @@ jobs:
       with:
         personal_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
         external_repository: nex3/nex3.github.io
-        publish_dir: ./cohost-backloggd
+        publish_dir: ./dist
+        destination_dir: cohost-backloggd
         publish_branch: main
         allow_empty_commit: true
 
