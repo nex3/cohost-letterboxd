@@ -132,12 +132,7 @@ export class AppComponent {
       .replace(/ _ng[a-z0-9-]+=""/g, '')
       // Angular-injected class.
       .replace(/ class="ng-star-inserted"/g, '');
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        "text/plain": new Blob([html], {type: "text/plain"}),
-      })
-    ]);
-
+    await navigator.clipboard.writeText(html);
     this._snackBar.open("HTML copied!", undefined, { duration: 1000 });
   }
 }
