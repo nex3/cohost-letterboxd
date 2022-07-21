@@ -3,14 +3,20 @@ mat-card, .result, mat-spinner {
   margin: 0 auto;
 }
 
-form {
+.toggles {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
+  width: 100%;
+  padding-bottom: 1.3rem;
 }
 
 mat-form-field {
   width: 100%;
+}
+
+mat-slide-toggle, button {
+  padding: 0 1rem;
 }
 
 .result, mat-spinner {

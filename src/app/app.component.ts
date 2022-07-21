@@ -1,7 +1,8 @@
-import {Component, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {FormBuilder, FormControl, Validators} from '@angular/forms';
 import {Observable, catchError, filter, map, switchMap, tap} from 'rxjs';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 const reviewUrlPattern = /^https:\/\/(www\.)?backloggd\.com\/u\/[^\/]+\/review\/[0-9]+\/?$/;
 
@@ -54,7 +55,9 @@ export class AppComponent {
     'Shelved': '#e69b3e',
   };
 
-  constructor(private _formBuilder: FormBuilder, private _http: HttpClient) {
+  @ViewChild('result') private wrapper!: ElementRef<HTMLElement>;
+
+  constructor(private _formBuilder: FormBuilder, private _http: HttpClient, private _snackBar: MatSnackBar) {
     this.reviewChanges = this.form.controls.url.valueChanges.pipe(
       filter(val => !val || !!val.match(reviewUrlPattern)),
       switchMap(val => {
@@ -119,5 +122,22 @@ export class AppComponent {
       }),
       tap(() => this.loading = false),
     );
+  }
+
+  async copyHtml(): Promise<void> {
+    const html = this.wrapper.nativeElement.innerHTML
+      // Angular adds a bunch of comments that we don't need.
+      .replace(/<!--(.|\n)*?-->/mg, '')
+      // Magic Angular attributes.
+      .replace(/ _ng[a-z0-9-]+=""/g, '')
+      // Angular-injected class.
+      .replace(/ class="ng-star-inserted"/g, '');
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "text/plain": new Blob([html], {type: "text/plain"}),
+      })
+    ]);
+
+    this._snackBar.open("HTML copied!", undefined, { duration: 1000 });
   }
 }
