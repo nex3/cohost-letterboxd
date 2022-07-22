@@ -14,9 +14,9 @@ interface ReviewInfo {
   reviewerAvatar: URL;
   game: string;
   gameUrl: URL;
-  platform: string;
-  platformUrl: URL;
-  starsPercentage: string;
+  platform: string|null;
+  platformUrl: URL|null;
+  starsPercentage: string|null;
   body: string;
   image: URL|null;
   mastered: boolean;
@@ -77,7 +77,8 @@ export class AppComponent {
         const usernameLink = doc.querySelector('.username-link a') as HTMLElement;
         const gameLink = doc.querySelector('.review-card a[href^="/games/"]') as HTMLElement;
         const gameUrl = new URL(gameLink.getAttribute('href')!, reviewResponse.url!);
-        const platformLink = doc.querySelector('.review-platform') as HTMLElement;
+        const platformLink = doc.querySelector('.review-platform') as HTMLElement|undefined;
+        const stars = doc.querySelector('.stars-top') as HTMLElement|undefined;
         const statusLink = doc.querySelector('.game-status a') as HTMLElement;
         const reviewInfoWithoutImage = {
           url: new URL(reviewResponse.url!),
@@ -91,15 +92,18 @@ export class AppComponent {
           reviewerAvatar: new URL(doc.querySelector('#avatar img')!.getAttribute('src')!, reviewResponse.url!),
           game: gameLink.innerText.trim(),
           gameUrl,
-          platform: platformLink.innerText.trim(),
-          platformUrl: new URL(platformLink.getAttribute('href')!, reviewResponse.url!),
-          starsPercentage: (doc.querySelector('.stars-top') as HTMLElement).style['width'],
+          platform: platformLink?.innerText?.trim() ?? null,
+          platformUrl: platformLink
+              ? new URL(platformLink.getAttribute('href')!, reviewResponse.url!)
+              : null,
+          starsPercentage: stars ? stars.style['width'] : null,
           body: doc.querySelector('.review-body p')!.innerHTML,
           mastered: !!doc.querySelector('.mastered-icon'),
           backer: !!doc.querySelector('.backer-badge'),
           replay: !!doc.querySelector('.review-card .fa-history'),
           status: statusLink.innerText.trim(),
           statusUrl: new URL(statusLink.getAttribute('href')!, reviewResponse.url!),
+          image: null,
         };
 
         return this._http.get(gameUrl.toString(), {responseType: 'text', observe: 'response'}).pipe(
@@ -108,14 +112,13 @@ export class AppComponent {
             return Promise.resolve(null);
           }),
           map(gameResponse => {
+            if (!gameResponse) return reviewInfoWithoutImage;
+
+            const image = domParser.parseFromString(gameResponse.body!, 'text/html')
+                        .querySelector('#artwork-high-res');
             return {
               ...reviewInfoWithoutImage,
-              image: gameResponse ?
-                new URL(
-                    domParser.parseFromString(gameResponse.body!, 'text/html')
-                        .querySelector('#artwork-high-res')!.getAttribute('src')!,
-                    gameResponse.url!) :
-                null,
+              image: image ? new URL(image.getAttribute('src')!,gameResponse.url!) : null,
             };
           })
         );

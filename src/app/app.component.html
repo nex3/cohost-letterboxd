@@ -6,7 +6,7 @@
     </mat-form-field>
 
     <div class="toggles">
-      <mat-slide-toggle [formControl]="form.controls.includeImage">
+      <mat-slide-toggle [formControl]="form.controls.includeImage" [disabled]="!!(reviewChanges | async) && !(reviewChanges | async)?.image">
         Include header image
       </mat-slide-toggle>
 
@@ -62,7 +62,7 @@
                           </div>
                       </div>
                       <div style="display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px;">
-                          <div
+                          <div *ngIf="review.starsPercentage"
                               style="position: relative; width: auto; max-width: 100%; padding-left: 15px; padding-right: 0; margin-top: auto; margin-bottom: auto;">
                               <div
                                   style="display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; line-height: normal; margin-left: -2px; font-size: 1.15rem; line-height: 17px; unicode-bidi: bidi-override; color: rgba(146,161,204,.23); height: auto; width: auto; margin: 0 auto; position: relative; padding: 0; white-space: nowrap;">
@@ -88,11 +88,11 @@
                                 <img src="https://staging.cohostcdn.org/attachment/e493d9d4-c222-4265-ac7f-7fa78f5a55ed/trophy.svg" alt="Mastered" title="Mastered" style="width: 1rem; margin: 0">
                               </p>
                           </div>
-                          <div
+                          <div *ngIf="review.platform"
                               style="position: relative; width: auto; max-width: 100%; padding-left: 0; padding-right: 0.25rem; line-height: normal; font-weight: 200; color: #8f9ca7; margin-right: -0.75rem">
                               <p style="margin: 0">on</p>
                           </div>
-                          <div
+                          <div *ngIf="review.platform"
                               style="position: relative; width: auto; max-width: 100%; padding-left: 15px; margin-top: auto; margin-bottom: auto">
                               <a href="{{review.platformUrl}}"
                                   style="margin-top: 0; margin-bottom: 0; margin-left: auto; color: #cbd4dc; line-height: normal; text-decoration: none; font-weight: 600">
