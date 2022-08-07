@@ -130,7 +130,26 @@
     color: #abc;
     text-decoration: none;
     font-weight: 700;
-" href="{{review.reviewerUrl}}">{{review.reviewer}}</a>
+" href="{{review.reviewerUrl}}">
+                                {{review.reviewer}}
+                                <span *ngIf="review.patron" style="
+    font-size: 9.5px;
+    padding: 2px 4px;
+    background-color: #209ce4;
+    border-radius: 2px;
+    line-height: 1;
+    color: #fff;
+    display: inline-block;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0;
+    margin-left: 2px;
+    position: relative;
+    text-transform: uppercase;
+    top: -1px;
+    user-select: none;
+">Patron</span>
+                            </a>
                         </strong>
                     </p>
                 </div>
