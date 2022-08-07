@@ -4,26 +4,27 @@ import {FormBuilder, FormControl, Validators} from '@angular/forms';
 import {Observable, catchError, filter, map, switchMap, tap} from 'rxjs';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
-const reviewUrlPattern = /^https:\/\/(www\.)?backloggd\.com\/u\/[^\/]+\/review\/[0-9]+\/?$/;
+const reviewUrlPattern = /^https:\/\/(www\.)?letterboxd\.com\/[^\/]+\/film\/[^\/]+\/?$/;
 
 interface ReviewInfo {
   url: URL;
-  date: string;
   reviewer: string;
   reviewerUrl: URL;
   reviewerAvatar: URL;
-  game: string;
-  gameUrl: URL;
-  platform: string|null;
-  platformUrl: URL|null;
-  starsPercentage: string|null;
+  reviewYear: string;
+  reviewYearUrl: URL;
+  reviewMonth: string;
+  reviewMonthUrl: URL;
+  reviewDay: string;
+  reviewDayUrl: URL;
+  film: string;
+  filmUrl: URL;
+  filmYear: string;
+  starsPercentage: number|null;
   body: string;
+  poster: URL|null;
   image: URL|null;
-  mastered: boolean;
-  backer: boolean;
-  replay: boolean;
-  status: string;
-  statusUrl: URL;
+  patron: boolean;
 }
 
 const domParser = new DOMParser();
@@ -39,21 +40,12 @@ export class AppComponent {
     url: new FormControl("", [
       Validators.pattern(reviewUrlPattern)
     ]),
-    includeImage: new FormControl(true),
+    includePoster: new FormControl(true),
     attribution: new FormControl(true),
   });
 
   loading = false;
   reviewChanges: Observable<ReviewInfo|null>;
-
-  statusColors: Record<string, string> = {
-    'Played': '#ea377a',
-    'Completed': '#43b94f',
-    'Mastered': '#8d58af',
-    'Abandoned': '#ea4747',
-    'Retired': '#4b7bd4',
-    'Shelved': '#e69b3e',
-  };
 
   @ViewChild('result') private wrapper!: ElementRef<HTMLElement>;
 
@@ -63,7 +55,7 @@ export class AppComponent {
       switchMap(val => {
         if (!val) return Promise.resolve(null);
         this.loading = true;
-        return this._http.get(val, {responseType: 'text', observe: 'response'}).pipe(
+        return this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/${val}`, {responseType: 'text', observe: 'response'}).pipe(
           catchError(error => {
             console.error(error);
             return Promise.resolve(null);
@@ -74,39 +66,42 @@ export class AppComponent {
         if (!reviewResponse) return Promise.resolve(null);
 
         const doc = domParser.parseFromString(reviewResponse.body!, 'text/html');
-        const usernameLink = doc.querySelector('.username-link a') as HTMLElement;
-        const gameLink = doc.querySelector('.review-card a[href^="/games/"]') as HTMLElement;
-        const gameUrl = new URL(gameLink.getAttribute('href')!, reviewResponse.url!);
-        const platformLink = doc.querySelector('.review-platform') as HTMLElement|undefined;
-        const stars = doc.querySelector('.stars-top') as HTMLElement|undefined;
-        const statusLink = doc.querySelector('.game-status a') as HTMLElement;
+        const usernameLink = doc.querySelector('.person-summary a.name') as HTMLElement;
+        const reviewYear = doc.querySelector('.date-links :nth-of-type(3)') as HTMLElement;
+        const reviewMonth = doc.querySelector('.date-links :nth-of-type(1)') as HTMLElement;
+        const reviewDay = doc.querySelector('.date-links :nth-of-type(2)') as HTMLElement;
+        const filmLink = doc.querySelector('.film-title-wrapper > a') as HTMLElement;
+        const filmUrl = new URL(filmLink.getAttribute('href')!, reviewResponse.url!);
+        const stars = doc.querySelector('.rating') as HTMLElement|undefined;
+        let starsPercentage: number|null = null;
+        if (stars) {
+          const match = stars.getAttribute('class')?.match(/rated-large-([0-9]+)/);
+          if (match && match[1]) {
+            starsPercentage = parseInt(match[1])/10;
+          }
+        }
         const reviewInfoWithoutImage = {
           url: new URL(reviewResponse.url!),
-          date: Array.from(doc.querySelectorAll('.review-card p'))
-              .map(el => (el as HTMLElement).innerText)
-              .filter(text => text.startsWith('Reviewed on '))
-              .map(text => text.substring('Reviewed on '.length))
-              [0],
-          reviewer: usernameLink.innerText.trim(),
+          reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
           reviewerUrl: new URL(usernameLink.getAttribute('href')!, reviewResponse.url!),
-          reviewerAvatar: new URL(doc.querySelector('#avatar img')!.getAttribute('src')!, reviewResponse.url!),
-          game: gameLink.innerText.trim(),
-          gameUrl,
-          platform: platformLink?.innerText?.trim() ?? null,
-          platformUrl: platformLink
-              ? new URL(platformLink.getAttribute('href')!, reviewResponse.url!)
-              : null,
-          starsPercentage: stars ? stars.style['width'] : null,
-          body: doc.querySelector('.review-body p')!.innerHTML,
-          mastered: !!doc.querySelector('.mastered-icon'),
-          backer: !!doc.querySelector('.backer-badge'),
-          replay: !!doc.querySelector('.review-card .fa-history'),
-          status: statusLink.innerText.trim(),
-          statusUrl: new URL(statusLink.getAttribute('href')!, reviewResponse.url!),
+          reviewerAvatar: new URL(doc.querySelector('.avatar img')!.getAttribute('src')!, reviewResponse.url!),
+          reviewYear: reviewYear.innerText.trim(),
+          reviewYearUrl: new URL(reviewYear.getAttribute('href')!, reviewResponse.url!),
+          reviewMonth: reviewMonth.innerText.trim(),
+          reviewMonthUrl: new URL(reviewMonth.getAttribute('href')!, reviewResponse.url!),
+          reviewDay: reviewDay.innerText.trim(),
+          reviewDayUrl: new URL(reviewDay.getAttribute('href')!, reviewResponse.url!),
+          film: filmLink.innerText.trim(),
+          filmUrl,
+          filmYear: (doc.querySelector('.film-title-wrapper .metadata') as HTMLElement).innerText,
+          poster: new URL(doc.querySelector('.poster img')!.getAttribute('src')!, reviewResponse.url!),
+          starsPercentage,
+          body: doc.querySelector('.review.body-text > div > div')!.innerHTML,
           image: null,
+          patron: !!usernameLink.querySelector('.badge.-patron'),
         };
 
-        return this._http.get(gameUrl.toString(), {responseType: 'text', observe: 'response'}).pipe(
+        return this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/${filmUrl}`, {responseType: 'text', observe: 'response'}).pipe(
           catchError(error => {
             console.error(error);
             return Promise.resolve(null);
@@ -115,16 +110,22 @@ export class AppComponent {
             if (!gameResponse) return reviewInfoWithoutImage;
 
             const image = domParser.parseFromString(gameResponse.body!, 'text/html')
-                        .querySelector('#artwork-high-res');
+                        .querySelector('.backdropplaceholder') as HTMLElement;
+            const match = image.style.backgroundImage.match(/(https:.*)-48-48-27-27-crop\.png/)!;
             return {
               ...reviewInfoWithoutImage,
-              image: image ? new URL(image.getAttribute('src')!,gameResponse.url!) : null,
+              image: image ? new URL(match[1] + '-1920-1920-1080-1080-crop-000000.jpg') : null,
             };
           })
         );
       }),
       tap(() => this.loading = false),
     );
+  }
+
+  stars(starsPercentage: number): string {
+    const rating = Math.round(starsPercentage * 10);
+    return '★'.repeat(Math.floor(rating/2)) + (rating % 2 === 0 ? '' : '½');
   }
 
   async copyHtml(): Promise<void> {

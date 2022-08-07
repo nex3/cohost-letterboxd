@@ -1,137 +1,195 @@
 <mat-card>
-  <form [formGroup]="form">
-    <mat-form-field appearance="fill">
-      <mat-label>Review URL</mat-label>
-      <input matInput [formControl]="form.controls.url" placeholder="https://www.letterboxd.com/.../film/.../">
-    </mat-form-field>
+    <form [formGroup]="form">
+        <mat-form-field appearance="fill">
+            <mat-label>Review URL</mat-label>
+            <input matInput [formControl]="form.controls.url" placeholder="https://www.letterboxd.com/.../film/.../">
+        </mat-form-field>
 
-    <div class="toggles">
-      <mat-slide-toggle [formControl]="form.controls.includeImage">
-        Include header image
-      </mat-slide-toggle>
+        <div class="toggles">
+            <mat-slide-toggle [formControl]="form.controls.includePoster">
+                Include poster
+            </mat-slide-toggle>
 
-      <mat-slide-toggle [formControl]="form.controls.attribution">
-        Include link to this generator
-      </mat-slide-toggle>
-    </div>
+            <mat-slide-toggle [formControl]="form.controls.attribution">
+                Include link to this generator
+            </mat-slide-toggle>
+        </div>
 
-    <button mat-raised-button color="primary" (click)="copyHtml()" [disabled]="loading || !(reviewChanges | async)">Copy HTML</button>
-  </form>
+        <button mat-raised-button color="primary" (click)="copyHtml()"
+            [disabled]="loading || !(reviewChanges | async)">Copy HTML</button>
+    </form>
 </mat-card>
 
 <mat-spinner *ngIf="loading"></mat-spinner>
 
 <div #result class="result" *ngIf="!loading && (reviewChanges | async); let review">
-  <div
-      style="display: flex; flex-wrap: wrap; color: #badefc; background-color: #16181c; border-radius: 5px; border: 1px solid #242832; overflow: hidden; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7)">
-      <div
-          style="display: flex; flex-wrap: wrap; background-color: #242832; width: 100%; padding-top: 0.75rem; padding-bottom: 0.25rem; z-index: 2">
-          <div
-              style="margin-bottom: auto; padding-right: 0; flex: 0 0 auto; width: auto; max-width: 100%; position: relative; padding-left: 15px">
-              <a href="{{review.reviewerUrl}}">
-                  <img src="{{review.reviewerAvatar}}"
-                      style="width: 40px; height: 40px; border-radius: 4px; vertical-align: middle; margin: 0">
-              </a>
-          </div>
-          <div
-              style="min-width: 0; flex-basis: 0; flex-grow: 1; max-width: 100%; position: relative; width: 100%; padding-right: 15px; padding-left: 15px;">
-              <div
-                  style="display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; font-size: .9rem; margin-bottom: 0.25rem;">
-                  <div
-                      style="min-width: 0; flex-basis: 0; flex-grow: 1; max-width: 100%; position: relative; width: 100%; padding-right: 15px; padding-left: 15px;">
-                      <div
-                          style="display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; margin-bottom: 0.25rem">
-                          <div
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 15px; padding-right: 0; margin-bottom: auto; margin-top: auto; margin-right: -0.5rem;">
-                              <a href="{{review.reviewerUrl}}"
-                                  style="margin-bottom: auto; margin-top: auto; color: #cbd4dc; font-weight: 700; text-decoration: none; display: block">
-                                  <p style="font-size: 1.1rem; line-height: normal; margin: 0">{{review.reviewer}}</p>
-                              </a>
-                          </div>
-                          <div *ngIf="review.backer"
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 15px; margin-bottom: auto; margin-top: auto; padding-left: 0; padding-right: 0; margin-left: 0.5rem; margin-right: -0.5rem">
-                              <p
-                                  style="margin: 0 5px; background-color: #ea377a; color: #16181c; font-size: .7rem; border-radius: 4px; font-weight: 600; padding: 0 4px;">
-                                  BACKER</p>
-                          </div>
-                          <div
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 15px; margin-top: auto">
-                              <p style="margin: 0; line-height: normal; font-weight: 200; color: #8f9ca7">reviewed <a
-                                      href="{{review.gameUrl}}"
-                                      style="color: #cbd4dc; text-decoration: none; font-weight: 600">{{review.game}}</a></p>
-                          </div>
-                      </div>
-                      <div style="display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px;">
-                          <div *ngIf="review.starsPercentage"
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 15px; padding-right: 0; margin-top: auto; margin-bottom: auto;">
-                              <div
-                                  style="display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; line-height: normal; margin-left: -2px; font-size: 1.15rem; line-height: 17px; unicode-bidi: bidi-override; color: rgba(146,161,204,.23); height: auto; width: auto; margin: 0 auto; position: relative; padding: 0; white-space: nowrap;">
-                                  <div
-                                      style="width: {{review.starsPercentage}}; color: #ea377a; padding: 0; position: absolute; z-index: 1; display: block; top: 0; left: 0; height: 100%; overflow: hidden; white-space: nowrap;">
-                                      ★★★★★</div>
-                                  <div style="padding: 0; display: block; z-index: 0">★★★★★</div>
-                              </div>
-                          </div>
-                          <div
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 0.5rem; padding-right: 0.25rem; margin-top: auto; margin-bottom: auto; position: relative; margin-left: 0.5rem">
-                              <a href="{{review.statusUrl}}"
-                                  style="text-decoration: none">
-                                  <p style="margin: 0; color: #cbd4dc; padding: 0; line-height: normal; font-weight: 600">{{review.status}}</p>
-                                  <div
-                                      style="background-color: {{statusColors[review.status]}}; position: absolute; width: 7px; height: 7px; top: 6px; left: -1px; border-radius: 10px;">
-                                  </div>
-                              </a>
-                          </div>
-                          <div *ngIf="review.mastered" 
-                              style="position: relative; flex: 0 0 auto; width: auto; max-width: 100%; padding-left: 0.25rem; padding-right: 0.25rem">
-                              <p style="margin: 0">
-                                <img src="https://staging.cohostcdn.org/attachment/e493d9d4-c222-4265-ac7f-7fa78f5a55ed/trophy.svg" alt="Mastered" title="Mastered" style="width: 1rem; margin: 0">
-                              </p>
-                          </div>
-                          <div *ngIf="review.platform"
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 0; padding-right: 0.25rem; line-height: normal; font-weight: 200; color: #8f9ca7; margin-right: -0.75rem">
-                              <p style="margin: 0">on</p>
-                          </div>
-                          <div *ngIf="review.platform"
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 15px; margin-top: auto; margin-bottom: auto">
-                              <a href="{{review.platformUrl}}"
-                                  style="margin-top: 0; margin-bottom: 0; margin-left: auto; color: #cbd4dc; line-height: normal; text-decoration: none; font-weight: 600">
-                                  <p style="margin: 0">{{review.platform}}</p>
-                              </a>
-                          </div>
-                          <div *ngIf="review.replay"
-                              style="position: relative; width: auto; max-width: 100%; padding-left: 15px; margin-top: auto; margin-bottom: auto; line-height: normal; line-weight: 200; color: #8f9ca7">
-                            <p style="margin: 0">
-                              again
-                              <img src="https://staging.cohostcdn.org/attachment/45b7d1e1-bc8e-4210-b7cf-dd02c9513954/replay.svg" style="width: 0.9rem; margin: 0; display: inline">
-                            </p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div style="width: 100%; height: 0; margin-bottom: 160px" *ngIf="review.image && form.controls.includeImage.value">
-          <img style="min-width: 100%; width: 100%; min-height: 267px; object-fit: cover; margin: 0; transform: translateY(-25%)" src="{{review.image}}">
-      </div>
-      <div style="display: flex; flex-wrap: wrap; margin-top: calc(0.5rem - 160px); z-index: 0; background: linear-gradient(180deg,rgba(125,185,232,0) 0,#16181c calc(160px + 3rem)); padding-top: 160px; width: 100%">
-          <div
-              style="min-width: 0; flex-basis: 0; flex-grow: 1; max-width: 100%; position: relative; width: 100%; padding-right: 15px; padding-left: 15px;">
-              <div style="font-weight: 400; font-size: 0.9rem; margin-bottom: 0">
-                  <p style="margin: 0; display: inline-block; word-break: break-word; width: 100%" [innerHtml]="review.body">
-                  </p>
-              </div>
-          </div>
-      </div>
-      <div style="display: flex; flex-wrap: wrap; width: 100%; background-color: #16181c; z-index: 1; padding-top: 0.5rem; padding-bottom: 1rem">
-          <div
-              style="position: relative; width: auto; max-width: 100%; padding-left: 15px; padding-right: 15px; margin-left: auto">
-              <p style="margin: 0; font-size: .9rem; line-height: normal"><a
-                      href="{{review.url}}"
-                      style="font-weight: 200; text-decoration: none; color: #8f9ca7">Reviewed on {{review.date}}</a></p>
-          </div>
-      </div>
-  </div>
-  <div *ngIf="form.controls.attribution.value" style="text-align: right; font-size: min(1.87vw, 70%); opacity: 0.7"> made with @nex3's <a
-          href="https://nex3.github.io/cohost-letterboxd">Letterboxd formatter</a></div>
+    <div style="
+    background: #2c3440; 
+    border-radius: 5px;
+    border: 1px solid #2c3440;
+    overflow: hidden;
+    box-shadow: rgb(0 0 0 / 70%) 2px 2px 5px;
+    color: #9ab;
+">
+        <div style="
+    display: flex;
+    margin-bottom: 18.462px;
+    padding: 13.846px 16px 0;
+    background: #456;
+">
+            <div *ngIf="form.controls.includePoster.value" style="
+    align-self: flex-start;
+    flex-shrink: 0;
+    order: 2;
+    width: 30%;
+    max-width: 110px;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+">
+                <div style="
+    height: auto;
+    width: 100%; 
+    background: #161718;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 35%);
+    border-radius: 4px;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+">
+                    <img style="
+    height: auto;
+    width: 100%;
+    border-radius: 4px;
+    margin: 0;
+    display: block;
+" src="{{review.poster}}">
+                    <a style="
+    box-shadow: inset 0 0 1px #def;
+    background-clip: padding-box;
+    background-image: linear-gradient(90deg,hsla(0,0%,100%,0) 0,hsla(0,0%,100%,.5) 50%,hsla(0,0%,100%,0));
+    background-repeat: no-repeat;
+    background-size: 100% 1px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: block;
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    text-indent: 110%;
+    top: 0;
+" href="{{review.filmUrl}}">
+                    </a>
+                </div>
+            </div>
+            <div style="
+    align-self: center;
+    flex-grow: 1;
+    order: 1;
+    padding-right: 13.846px;
+">
+                <div style="
+    margin-bottom: 13.846px;
+    color: #678;
+    position: relative;
+">
+                    <p style="
+    font-size: 12px;
+    display: inline-block;
+    line-height: 18px;
+    margin: 0;
+    max-width: 100%;
+    vertical-align: middle;
+">
+                        <a style="
+    border-radius: 9px;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    display: block;
+    float: left;
+    margin-right: 5px;
+    position: relative;
+    height: 18px;
+    width: 18px;
+" href="{{review.reviewerUrl}}">
+                            <img style="
+    height: auto;
+    width: 100%;
+    border-radius: 9px;
+    margin: 0;
+" src="{{review.reviewerAvatar}}"
+                                title="{{review.reviewer}}" width="16" height="16" />
+                        </a>
+                        <strong style="
+    display: inline-block;
+    margin-right: 5px;
+">
+                            <a style="
+    color: #abc;
+    text-decoration: none;
+    font-weight: 700;
+" href="{{review.reviewerUrl}}">{{review.reviewer}}</a>
+                        </strong>
+                    </p>
+                </div>
+                <h2 style="
+    margin-bottom: 9.231px;
+    font-size: 20.3077px;
+    font-weight: 400;
+    margin: 0 0 10px;
+    font-family: TiemposTextWeb-Semibold,Georgia,serif;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.2;
+">
+                    <div style="margin-right: 3px;">
+                        <a style="
+    color: #fff;
+    margin-right: 5px;
+    text-decoration: none;
+" href="{{review.filmUrl}}">{{review.film}}</a>
+                        <small style="
+    font-size: 16.6154px;
+    color: #89a;
+    font-weight: 400;
+">
+                            <a style="color: #abc; text-decoration: none"
+                                href="https://letterboxd.com/films/year/{{review.filmYear}}/">{{review.filmYear}}</a>
+                        </small>
+                    </div>
+                    <span *ngIf="review.starsPercentage" style.width="{{review.starsPercentage * 80}}px" style="
+    background: url(https://s.ltrbxd.com/static/img/sprite.bb4a4c3d.svg) no-repeat -390px -130px;
+    display: inline-block;
+    height: 14px;
+    overflow: hidden;
+    text-indent: 110%;
+    white-space: nowrap;
+"> {{stars(review.starsPercentage)}} </span>
+                </h2>
+                <p style="
+    color: #89a;
+    font-size: 12px;
+    margin-bottom: 9.231px;
+    line-height: 1.5;
+">
+                    Watched
+                    <a style="color: #89a; text-decoration: none"
+                        [href]="review.reviewMonthUrl"> {{review.reviewMonth}} </a>
+                    <a style="color: #89a; text-decoration: none"
+                        [href]="review.reviewDayUrl">{{review.reviewDay}}</a>,
+                    <a style="color: #89a; text-decoration: none"
+                        [href]="review.reviewYearUrl">{{review.reviewYear}}</a>
+                </p>
+            </div>
+        </div>
+        <div style="
+    line-height: 1.6875;
+    font-size: 14.7692px;
+    padding: 0 16px;
+" [innerHtml]="review.body"></div>
+    </div>
+    <div *ngIf="form.controls.attribution.value" style="text-align: right; font-size: min(1.87vw, 70%); opacity: 0.7">
+        made with @nex3's <a href="https://nex3.github.io/cohost-letterboxd">Letterboxd formatter</a></div>
 </div>
