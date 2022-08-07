@@ -2,7 +2,7 @@
   <form [formGroup]="form">
     <mat-form-field appearance="fill">
       <mat-label>Review URL</mat-label>
-      <input matInput [formControl]="form.controls.url" placeholder="https://www.backloggd.com/u/.../review/.../">
+      <input matInput [formControl]="form.controls.url" placeholder="https://www.letterboxd.com/.../film/.../">
     </mat-form-field>
 
     <div class="toggles">
@@ -133,5 +133,5 @@
       </div>
   </div>
   <div *ngIf="form.controls.attribution.value" style="text-align: right; font-size: min(1.87vw, 70%); opacity: 0.7"> made with @nex3's <a
-          href="https://nex3.github.io/cohost-backloggd">Backloggd formatter</a></div>
+          href="https://nex3.github.io/cohost-letterboxd">Letterboxd formatter</a></div>
 </div>

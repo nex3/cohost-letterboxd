@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "cohost-backloggd": {
+    "cohost-letterboxd": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -78,10 +78,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "cohost-backloggd:build:production"
+              "browserTarget": "cohost-letterboxd:build:production"
             },
             "development": {
-              "browserTarget": "cohost-backloggd:build:development"
+              "browserTarget": "cohost-letterboxd:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -89,7 +89,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "cohost-backloggd:build"
+            "browserTarget": "cohost-letterboxd:build"
           }
         },
         "test": {
@@ -118,5 +118,5 @@
       }
     }
   },
-  "defaultProject": "cohost-backloggd"
+  "defaultProject": "cohost-letterboxd"
 }

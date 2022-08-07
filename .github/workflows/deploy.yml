@@ -12,7 +12,7 @@ jobs:
     if:
       github.event_name == 'push' &&
         github.ref == 'refs/heads/main' &&
-        github.repository == 'nex3/cohost-backloggd'
+        github.repository == 'nex3/cohost-letterboxd'
 
     steps:
     - uses: actions/checkout@v2
@@ -20,7 +20,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
     - run: npm install
-    - run: npm run -- build --base-href /cohost-backloggd/
+    - run: npm run -- build --base-href /cohost-letterboxd/
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@068dc23d9710f1ba62e86896f84735d869951305 # v3.8.0
@@ -28,7 +28,7 @@ jobs:
         personal_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
         external_repository: nex3/nex3.github.io
         publish_dir: ./dist
-        destination_dir: cohost-backloggd
+        destination_dir: cohost-letterboxd
         publish_branch: main
         allow_empty_commit: true
 
