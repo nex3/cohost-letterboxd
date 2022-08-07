@@ -112,11 +112,11 @@ export class AppComponent {
             if (!gameResponse) return reviewInfoWithoutImage;
 
             const image = domParser.parseFromString(gameResponse.body!, 'text/html')
-                        .querySelector('.backdropplaceholder') as HTMLElement;
-            const match = image.style.backgroundImage.match(/(https:.*)-48-48-27-27-crop\.png/)!;
+                        .querySelector('.backdrop-wrapper') as HTMLElement;
+            const urlString = image?.dataset['backdrop'];
             return {
               ...reviewInfoWithoutImage,
-              image: image ? new URL(match[1] + '-1920-1920-1080-1080-crop-000000.jpg') : null,
+              image: urlString ? new URL(urlString, this.deproxyUrl(reviewResponse.url!)) : null,
             };
           })
         );
