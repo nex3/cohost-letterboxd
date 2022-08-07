@@ -6,7 +6,7 @@
     </mat-form-field>
 
     <div class="toggles">
-      <mat-slide-toggle [formControl]="form.controls.includeImage" [disabled]="!!(reviewChanges | async) && !(reviewChanges | async)?.image">
+      <mat-slide-toggle [formControl]="form.controls.includeImage">
         Include header image
       </mat-slide-toggle>
 
