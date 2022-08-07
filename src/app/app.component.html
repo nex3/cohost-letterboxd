@@ -10,6 +10,10 @@
                 Include poster
             </mat-slide-toggle>
 
+            <mat-slide-toggle [formControl]="form.controls.includeImage">
+                Include header image
+            </mat-slide-toggle>
+
             <mat-slide-toggle [formControl]="form.controls.attribution">
                 Include link to this generator
             </mat-slide-toggle>
@@ -30,12 +34,15 @@
     overflow: hidden;
     box-shadow: rgb(0 0 0 / 70%) 2px 2px 5px;
     color: #9ab;
+    display: flex;
+    flex-direction: column;
 ">
         <div style="
     display: flex;
     margin-bottom: 18.462px;
     padding: 13.846px 16px 0;
     background: #456;
+    z-index: 1;
 ">
             <div *ngIf="form.controls.includePoster.value" style="
     align-self: flex-start;
@@ -203,10 +210,19 @@
                 </p>
             </div>
         </div>
+        <div style="width: 100%; height: 0; margin-bottom: 160px" *ngIf="review.image && form.controls.includeImage.value">
+            <img style="min-width: 100%; width: 100%; min-height: 267px; object-fit: cover; margin: 0; transform: translateY(-20%)" src="{{review.image}}">
+        </div>
         <div style="
     line-height: 1.6875;
     font-size: 14.7692px;
     padding: 0 16px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(0.5rem - 160px);
+    z-index: 0;
+    background: linear-gradient(180deg,rgba(125,185,232,0) 0,#16181c calc(160px + 3rem));
+    padding-top: 160px;
 " [innerHtml]="review.body"></div>
     </div>
     <div *ngIf="form.controls.attribution.value" style="text-align: right; font-size: min(1.87vw, 70%); opacity: 0.7">

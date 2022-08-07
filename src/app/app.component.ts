@@ -41,6 +41,7 @@ export class AppComponent {
       Validators.pattern(reviewUrlPattern)
     ]),
     includePoster: new FormControl(true),
+    includeImage: new FormControl(true),
     attribution: new FormControl(true),
   });
 
