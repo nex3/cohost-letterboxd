@@ -65,13 +65,14 @@ export class AppComponent {
       switchMap(reviewResponse => {
         if (!reviewResponse) return Promise.resolve(null);
 
+        const url = this.deproxyUrl(reviewResponse.url!);
         const doc = domParser.parseFromString(reviewResponse.body!, 'text/html');
         const usernameLink = doc.querySelector('.person-summary a.name') as HTMLElement;
         const reviewYear = doc.querySelector('.date-links :nth-of-type(3)') as HTMLElement;
         const reviewMonth = doc.querySelector('.date-links :nth-of-type(1)') as HTMLElement;
         const reviewDay = doc.querySelector('.date-links :nth-of-type(2)') as HTMLElement;
         const filmLink = doc.querySelector('.film-title-wrapper > a') as HTMLElement;
-        const filmUrl = new URL(filmLink.getAttribute('href')!, reviewResponse.url!);
+        const filmUrl = new URL(filmLink.getAttribute('href')!, url);
         const stars = doc.querySelector('.rating') as HTMLElement|undefined;
         let starsPercentage: number|null = null;
         if (stars) {
@@ -81,20 +82,20 @@ export class AppComponent {
           }
         }
         const reviewInfoWithoutImage = {
-          url: new URL(reviewResponse.url!),
+          url,
           reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
-          reviewerUrl: new URL(usernameLink.getAttribute('href')!, reviewResponse.url!),
-          reviewerAvatar: new URL(doc.querySelector('.avatar img')!.getAttribute('src')!, reviewResponse.url!),
+          reviewerUrl: new URL(usernameLink.getAttribute('href')!, url),
+          reviewerAvatar: new URL(doc.querySelector('.avatar img')!.getAttribute('src')!, url),
           reviewYear: reviewYear.innerText.trim(),
-          reviewYearUrl: new URL(reviewYear.getAttribute('href')!, reviewResponse.url!),
+          reviewYearUrl: new URL(reviewYear.getAttribute('href')!, url),
           reviewMonth: reviewMonth.innerText.trim(),
-          reviewMonthUrl: new URL(reviewMonth.getAttribute('href')!, reviewResponse.url!),
+          reviewMonthUrl: new URL(reviewMonth.getAttribute('href')!, url),
           reviewDay: reviewDay.innerText.trim(),
-          reviewDayUrl: new URL(reviewDay.getAttribute('href')!, reviewResponse.url!),
+          reviewDayUrl: new URL(reviewDay.getAttribute('href')!, url),
           film: filmLink.innerText.trim(),
           filmUrl,
           filmYear: (doc.querySelector('.film-title-wrapper .metadata') as HTMLElement).innerText,
-          poster: new URL(doc.querySelector('.poster img')!.getAttribute('src')!, reviewResponse.url!),
+          poster: new URL(doc.querySelector('.poster img')!.getAttribute('src')!, url),
           starsPercentage,
           body: doc.querySelector('.review.body-text > div > div')!.innerHTML,
           image: null,
@@ -121,6 +122,15 @@ export class AppComponent {
       }),
       tap(() => this.loading = false),
     );
+  }
+
+  deproxyUrl(url: string|URL): URL {
+    if (typeof url === 'string') url = new URL(url);
+    if (url.pathname.startsWith('/http')) {
+      return new URL(url.pathname.substring(1));
+    } else {
+      return url;
+    }
   }
 
   stars(starsPercentage: number): string {
