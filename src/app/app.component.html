@@ -27,6 +27,7 @@
 <mat-spinner *ngIf="loading"></mat-spinner>
 
 <div #result class="result" *ngIf="!loading && (reviewChanges | async); let review">
+    <div style="display: none">{{review.film}} Review</div>
     <div style="
     background: #2c3440; 
     border-radius: 5px;
