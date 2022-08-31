@@ -63,8 +63,8 @@ export class AppComponent {
           })
         );
       }),
-      switchMap(reviewResponse => {
-        if (!reviewResponse) return Promise.resolve(null);
+      map(reviewResponse => {
+        if (!reviewResponse) return null;
 
         const url = this.deproxyUrl(reviewResponse.url!);
         const doc = domParser.parseFromString(reviewResponse.body!, 'text/html');
@@ -91,7 +91,10 @@ export class AppComponent {
             posterId.split('').join('/') +
             `/${posterId}-${filmSlug}-0-300-0-450-crop.jpg`);
 
-        const reviewInfoWithoutImage = {
+        const image = doc.querySelector('.backdrop-wrapper') as HTMLElement;
+        const imageUrlString = image?.dataset['backdrop'];
+
+        return {
           url,
           reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
           reviewerUrl: new URL(usernameLink.getAttribute('href')!, url),
@@ -108,27 +111,9 @@ export class AppComponent {
           poster: posterUrl,
           starsPercentage,
           body: doc.querySelector('.review.body-text > div > div')!.innerHTML,
-          image: null,
+          image: imageUrlString ? new URL(imageUrlString, this.deproxyUrl(reviewResponse.url!)) : null,
           patron: !!usernameLink.querySelector('.badge.-patron'),
         };
-
-        return this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/${filmUrl}`, {responseType: 'text', observe: 'response'}).pipe(
-          catchError(error => {
-            console.error(error);
-            return Promise.resolve(null);
-          }),
-          map(gameResponse => {
-            if (!gameResponse) return reviewInfoWithoutImage;
-
-            const image = domParser.parseFromString(gameResponse.body!, 'text/html')
-                        .querySelector('.backdrop-wrapper') as HTMLElement;
-            const urlString = image?.dataset['backdrop'];
-            return {
-              ...reviewInfoWithoutImage,
-              image: urlString ? new URL(urlString, this.deproxyUrl(reviewResponse.url!)) : null,
-            };
-          })
-        );
       }),
       tap(() => this.loading = false),
     );
