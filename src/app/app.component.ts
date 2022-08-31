@@ -82,6 +82,15 @@ export class AppComponent {
             starsPercentage = parseInt(match[1])/10;
           }
         }
+
+        const urlComponents = filmUrl.pathname.split('/');
+        const filmSlug = urlComponents[urlComponents.length - 2];
+        const posterDiv = doc.querySelector('.poster') as HTMLElement;
+        const posterId = posterDiv.dataset.filmId!;
+        const posterUrl = new URL('https://a.ltrbxd.com/resized/film-poster/' +
+            posterId.split('').join('/') +
+            `/${posterId}-${filmSlug}-0-300-0-450-crop.jpg`);
+
         const reviewInfoWithoutImage = {
           url,
           reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
@@ -96,7 +105,7 @@ export class AppComponent {
           film: filmLink.innerText.trim(),
           filmUrl,
           filmYear: (doc.querySelector('.film-title-wrapper .metadata') as HTMLElement).innerText,
-          poster: new URL(doc.querySelector('.poster img')!.getAttribute('src')!, url),
+          poster: posterUrl,
           starsPercentage,
           body: doc.querySelector('.review.body-text > div > div')!.innerHTML,
           image: null,
