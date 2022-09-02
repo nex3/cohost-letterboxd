@@ -1,7 +1,7 @@
 import {Component, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {FormBuilder, FormControl, Validators} from '@angular/forms';
-import {Observable, catchError, filter, map, switchMap, tap} from 'rxjs';
+import {Observable, catchError, filter, firstValueFrom, switchMap, tap} from 'rxjs';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 const reviewUrlPattern = /^https:\/\/(www\.)?letterboxd\.com\/[^\/]+\/film\/[^\/]+\/?$/;
@@ -63,8 +63,8 @@ export class AppComponent {
           })
         );
       }),
-      map(reviewResponse => {
-        if (!reviewResponse) return null;
+      switchMap(reviewResponse => {
+        if (!reviewResponse) return Promise.resolve(null);
 
         const url = this.deproxyUrl(reviewResponse.url!);
         const doc = domParser.parseFromString(reviewResponse.body!, 'text/html');
@@ -82,19 +82,7 @@ export class AppComponent {
             starsPercentage = parseInt(match[1])/10;
           }
         }
-
-        const urlComponents = filmUrl.pathname.split('/');
-        const filmSlug = urlComponents[urlComponents.length - 2];
-        const posterDiv = doc.querySelector('.poster') as HTMLElement;
-        const posterId = posterDiv.dataset.filmId!;
-        const posterUrl = new URL('https://a.ltrbxd.com/resized/film-poster/' +
-            posterId.split('').join('/') +
-            `/${posterId}-${filmSlug}-0-300-0-450-crop.jpg`);
-
-        const image = doc.querySelector('.backdrop-wrapper') as HTMLElement;
-        const imageUrlString = image?.dataset['backdrop'];
-
-        return {
+        const reviewInfo: ReviewInfo = {
           url,
           reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
           reviewerUrl: new URL(usernameLink.getAttribute('href')!, url),
@@ -108,12 +96,45 @@ export class AppComponent {
           film: filmLink.innerText.trim(),
           filmUrl,
           filmYear: (doc.querySelector('.film-title-wrapper .metadata') as HTMLElement).innerText,
-          poster: posterUrl,
+          poster: new URL(doc.querySelector('.poster img')!.getAttribute('src')!, url),
           starsPercentage,
           body: doc.querySelector('.review.body-text > div > div')!.innerHTML,
-          image: imageUrlString ? new URL(imageUrlString, this.deproxyUrl(reviewResponse.url!)) : null,
+          image: null,
           patron: !!usernameLink.querySelector('.badge.-patron'),
         };
+
+        return this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/${filmUrl}`, {responseType: 'text', observe: 'response'}).pipe(
+          catchError(error => {
+            console.error(error);
+            return Promise.resolve(null);
+          }),
+          switchMap(async filmResponse => {
+            if (filmResponse) {
+              const image = domParser.parseFromString(filmResponse.body!, 'text/html')
+                          .querySelector('.backdrop-wrapper') as HTMLElement;
+              const urlString = image?.dataset['backdrop'];
+              reviewInfo.image = urlString ? new URL(urlString, this.deproxyUrl(reviewResponse.url!)) : null;
+            }
+
+            const urlComponents = filmUrl.pathname.split('/');
+            const filmSlug = urlComponents[urlComponents.length - 2];
+            const posterResponse = await firstValueFrom(
+              this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/https://letterboxd.com/ajax/poster/film/${filmSlug}/hero/300x450/`, {responseType: 'text', observe: 'response'}).pipe(
+              catchError(error => {
+                console.error(error);
+                return Promise.resolve(null);
+              })));
+
+            if (posterResponse) {
+              const poster = domParser.parseFromString(posterResponse.body!, 'text/html')
+                  .querySelector(".image:not(.hidden)") as HTMLImageElement;
+              const urlString = poster?.getAttribute('src');
+              reviewInfo.poster = urlString ? new URL(urlString, this.deproxyUrl(reviewResponse.url!)) : null;
+            }
+
+            return reviewInfo;
+          }),
+        );
       }),
       tap(() => this.loading = false),
     );
