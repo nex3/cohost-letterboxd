@@ -4,7 +4,7 @@ import {FormBuilder, FormControl, Validators} from '@angular/forms';
 import {Observable, catchError, filter, firstValueFrom, switchMap, tap} from 'rxjs';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
-const reviewUrlPattern = /^https:\/\/(www\.)?letterboxd\.com\/[^\/]+\/film\/[^\/]+\/?$/;
+const reviewUrlPattern = /^https:\/\/(www\.)?letterboxd\.com\/[^\/]+\/film\/[^\/]+\/([\d]+\/)?$|^https:\/\/boxd\.it\//;
 
 interface ReviewInfo {
   url: URL;
