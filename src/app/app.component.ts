@@ -155,7 +155,7 @@ export class AppComponent {
   }
 
   proxyUrl(url: string|URL): string {
-    return `http://ddraft.clients.dashdash.help:8080/${url}`;
+    return `https://letterboxd-cors-proxy.herokuapp.com/${url}`;
   }
 
   deproxyUrl(url: string|URL): URL {
