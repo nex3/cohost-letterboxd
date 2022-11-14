@@ -56,7 +56,7 @@ export class AppComponent {
       switchMap(val => {
         if (!val) return Promise.resolve(null);
         this.loading = true;
-        return this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/${val}`, {responseType: 'text', observe: 'response'}).pipe(
+        return this._http.get(this.proxyUrl(val), {responseType: 'text', observe: 'response'}).pipe(
           catchError(error => {
             console.error(error);
             return Promise.resolve(null);
@@ -103,7 +103,7 @@ export class AppComponent {
           patron: !!usernameLink.querySelector('.badge.-patron'),
         };
 
-        return this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/${filmUrl}`, {responseType: 'text', observe: 'response'}).pipe(
+        return this._http.get(this.proxyUrl(filmUrl), {responseType: 'text', observe: 'response'}).pipe(
           catchError(error => {
             console.error(error);
             return Promise.resolve(null);
@@ -119,7 +119,7 @@ export class AppComponent {
             const urlComponents = filmUrl.pathname.split('/');
             const filmSlug = urlComponents[urlComponents.length - 2];
             const posterResponse = await firstValueFrom(
-              this._http.get(`https://letterboxd-cors-proxy.herokuapp.com/https://letterboxd.com/ajax/poster/film/${filmSlug}/hero/300x450/`, {responseType: 'text', observe: 'response'}).pipe(
+              this._http.get(this.proxyUrl(`https://letterboxd.com/ajax/poster/film/${filmSlug}/hero/300x450/`), {responseType: 'text', observe: 'response'}).pipe(
               catchError(error => {
                 console.error(error);
                 return Promise.resolve(null);
@@ -138,6 +138,10 @@ export class AppComponent {
       }),
       tap(() => this.loading = false),
     );
+  }
+
+  proxyUrl(url: string|URL): string {
+    return `http://ddraft.clients.dashdash.help:8080/${url}`;
   }
 
   deproxyUrl(url: string|URL): URL {
