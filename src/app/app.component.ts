@@ -69,9 +69,23 @@ export class AppComponent {
         const url = this.deproxyUrl(reviewResponse.url!);
         const doc = domParser.parseFromString(reviewResponse.body!, 'text/html');
         const usernameLink = doc.querySelector('.person-summary a.name') as HTMLElement;
-        const reviewYear = doc.querySelector('.date-links :nth-of-type(3)') as HTMLElement;
-        const reviewMonth = doc.querySelector('.date-links :nth-of-type(1)') as HTMLElement;
-        const reviewDay = doc.querySelector('.date-links :nth-of-type(2)') as HTMLElement;
+        const reviewerUrl = new URL(usernameLink.getAttribute('href')!, url);
+
+        const dateLinks = doc.querySelector('.date-links') as HTMLElement;
+        let reviewMonth: string;
+        let reviewDay: string;
+        let reviewYear: string;
+        if (dateLinks.querySelector('a')) {
+          reviewMonth = (dateLinks.querySelector('a:nth-child(1)') as HTMLElement).innerText.trim();
+          reviewDay = (dateLinks.querySelector('a:nth-child(2)') as HTMLElement).innerText.trim();
+          reviewYear = (dateLinks.querySelector('a:nth-child(3)') as HTMLElement).innerText.trim();
+        } else {
+          [reviewDay, reviewMonth, reviewYear] = dateLinks.innerText.trim().split(' ');
+        }
+        const reviewYearUrl = new URL(`${reviewerUrl}/films/diary/for/${reviewYear}/`);
+        const reviewMonthUrl = new URL(`${reviewYearUrl}${new Date(Date.parse(`${reviewMonth} 1`)).getMonth() + 1}/`);
+        const reviewDayUrl = new URL(`${reviewMonthUrl}${reviewDay}/`);
+
         const filmLink = doc.querySelector('.film-title-wrapper > a') as HTMLElement;
         const filmUrl = new URL(filmLink.getAttribute('href')!, url);
         const stars = doc.querySelector('.rating') as HTMLElement|undefined;
@@ -85,14 +99,14 @@ export class AppComponent {
         const reviewInfo: ReviewInfo = {
           url,
           reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
-          reviewerUrl: new URL(usernameLink.getAttribute('href')!, url),
+          reviewerUrl,
           reviewerAvatar: new URL(doc.querySelector('.avatar img')!.getAttribute('src')!, url),
-          reviewYear: reviewYear.innerText.trim(),
-          reviewYearUrl: new URL(reviewYear.getAttribute('href')!, url),
-          reviewMonth: reviewMonth.innerText.trim(),
-          reviewMonthUrl: new URL(reviewMonth.getAttribute('href')!, url),
-          reviewDay: reviewDay.innerText.trim(),
-          reviewDayUrl: new URL(reviewDay.getAttribute('href')!, url),
+          reviewYear,
+          reviewYearUrl,
+          reviewMonth,
+          reviewMonthUrl,
+          reviewDay,
+          reviewDayUrl,
           film: filmLink.innerText.trim(),
           filmUrl,
           filmYear: (doc.querySelector('.film-title-wrapper .metadata') as HTMLElement).innerText,
