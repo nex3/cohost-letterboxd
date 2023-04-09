@@ -23,7 +23,7 @@ mat-slide-toggle, button {
   margin-top: 2rem;
 }
 
-.result {
+.result ::ng-deep {
   p {
     margin: 0 0 0.625em 0;
   }
