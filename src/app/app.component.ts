@@ -96,6 +96,27 @@ export class AppComponent {
             starsPercentage = parseInt(match[1])/10;
           }
         }
+
+        doc.querySelectorAll('p').forEach(el => {
+          el.style.margin = '0 0 0.625em 0';
+        });
+
+        doc.querySelectorAll('strong').forEach(el => {
+          el.style.color = '#abc';
+        });
+
+        doc.querySelectorAll('blockquote').forEach(el => {
+          el.style.color = '#abc';
+          el.style.borderLeft = '1px solid #456';
+          el.style.margin = '1em 0';
+          el.style.paddingLeft = '1em';
+
+          // Work around Cohost's automatic quote marks.
+          const p = document.createElement('p');
+          p.style.display = 'none';
+          el.insertBefore(p, el.firstChild);
+        });
+
         const reviewInfo: ReviewInfo = {
           url,
           reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
