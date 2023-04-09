@@ -22,3 +22,15 @@ mat-slide-toggle, button {
 .result, mat-spinner {
   margin-top: 2rem;
 }
+
+.result {
+  p {
+    margin: 0 0 0.625em 0;
+  }
+
+  blockquote {
+    border-left: 1px solid #456;
+    margin: 1em 0;
+    padding-left: 1em;
+  }
+}

@@ -97,26 +97,6 @@ export class AppComponent {
           }
         }
 
-        doc.querySelectorAll('p').forEach(el => {
-          el.style.margin = '0 0 0.625em 0';
-        });
-
-        doc.querySelectorAll('strong').forEach(el => {
-          el.style.color = '#abc';
-        });
-
-        doc.querySelectorAll('blockquote').forEach(el => {
-          el.style.color = '#abc';
-          el.style.borderLeft = '1px solid #456';
-          el.style.margin = '1em 0';
-          el.style.paddingLeft = '1em';
-
-          // Work around Cohost's automatic quote marks.
-          const p = document.createElement('p');
-          p.style.display = 'none';
-          el.insertBefore(p, el.firstChild);
-        });
-
         const reviewInfo: ReviewInfo = {
           url,
           reviewer: (usernameLink.querySelector('span:first-child') as HTMLElement).innerText.trim(),
@@ -200,7 +180,13 @@ export class AppComponent {
       // Magic Angular attributes.
       .replace(/ _ng[a-z0-9-]+=""/g, '')
       // Angular-injected class.
-      .replace(/ class="ng-star-inserted"/g, '');
+      .replace(/ class="ng-star-inserted"/g, '')
+      // Match letterboxd's paragraph spacing.
+      .replace(/<p>/g, '<p style="margin:0 0 0.625em 0">')
+      // Fix Cohost's weird blockquote formatting.
+      .replace(/<blockquote>/g, '<blockquote style="color:#abc;border-left:1px solid #456;margin:1em 0;padding-left:1em;"><p style="display:none">')
+      // Fix Cohost's strong coloring.
+      .replace(/<strong>/g, '<strong style="color:#abc">');
     await navigator.clipboard.writeText(html);
     this._snackBar.open("HTML copied!", undefined, { duration: 1000 });
   }
